@@ -98,5 +98,6 @@ def load_to_wikitext(file_name):
 
     return wikitext
 
-for file_name in sys.argv[1:]:
-    print(load_to_wikitext(file_name))
+if __name__ == '__main__':
+    for file_name in sys.argv[1:]:
+        print(load_to_wikitext(file_name))
