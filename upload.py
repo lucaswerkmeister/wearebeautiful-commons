@@ -12,6 +12,14 @@ from wikitext import load_data, data_to_page_wikitext, data_to_description
 bot_url = 'https://github.com/lucaswerkmeister/wearebeautiful-commons'
 
 
+def csrf_token(session):
+    if not hasattr(session, 'csrf_token'):
+        response = session.get(action='query',
+                               meta='tokens')
+        session.csrf_token = response['query']['tokens']['csrftoken']
+    return session.csrf_token
+
+
 def read_chunks(file_object, chunk_size):
     while data := file_object.read(chunk_size):
         aligned = len(data) == chunk_size
@@ -26,8 +34,7 @@ def read_chunks(file_object, chunk_size):
 def upload(session, file_object, file_name, wikitext, comment):
     chunk_size = 1024 * 1024
     chunks = read_chunks(file_object, chunk_size)
-    token = session.get(action='query',
-                        meta='tokens')['query']['tokens']['csrftoken']
+    token = csrf_token(session)
     offset = 0
     file_key = None
 
