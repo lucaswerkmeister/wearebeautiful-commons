@@ -82,6 +82,7 @@ def main():
                  lgtoken=lgtoken)
 
     for manifest_file in sys.argv[1:]:
+        print(f'Processing {manifest_file}...')
         load_and_upload(session, manifest_file)
 
 
