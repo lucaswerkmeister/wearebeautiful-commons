@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
+import gzip
 import os
+import sys
 
 from dotenv import load_dotenv
 from mwapi import Session
+
+from wikitext import load_data, data_to_page_wikitext, data_to_description
+
+
+bot_url = 'https://github.com/lucaswerkmeister/wearebeautiful-commons'
 
 
 def read_chunks(file_object, chunk_size):
@@ -54,6 +61,19 @@ def upload(session, file_object, file_name, wikitext, comment):
                  text=wikitext)
 
 
+def load_and_upload(session, manifest_file):
+    data = load_data(manifest_file)
+    model_code = data['model_code']
+    for stl_type in ('surface', 'solid'):
+        file_name = f'We Are Beautiful – {model_code} – {stl_type}.stl'
+        wikitext = data_to_page_wikitext(data, stl_type)
+        comment = 'Upload via {bot_url}'
+        stl_path = manifest_file.replace('-manifest.json',
+                                         f'-{stl_type}.stl.gz')
+        with gzip.open(stl_path, 'rb') as stl_file:
+            upload(session, stl_file, file_name, wikitext, comment)
+
+
 def main():
     load_dotenv()
 
@@ -72,7 +92,9 @@ def main():
                  lgname=username,
                  lgpassword=password,
                  lgtoken=lgtoken)
-    # TODO everything else :)
+
+    for manifest_file in sys.argv[1:]:
+        load_and_upload(session, manifest_file)
 
 
 if __name__ == '__main__':
