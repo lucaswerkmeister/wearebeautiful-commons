@@ -78,7 +78,7 @@ def add_caption(session, file_name, caption):
                  id=entity_id,
                  language='en',
                  value=caption,
-                 summary='via {bot_url}',
+                 summary=f'via {bot_url}',
                  token=csrf_token(session))
 
 
@@ -89,7 +89,7 @@ def load_and_upload(session, manifest_file):
         file_name = f'We Are Beautiful – {model_code} – {stl_type}.stl'
         wikitext = data_to_page_wikitext(data, stl_type)
         description = data_to_description(data, stl_type)
-        comment = 'Upload via {bot_url}'
+        comment = f'Upload via {bot_url}'
         stl_path = manifest_file.replace('-manifest.json',
                                          f'-{stl_type}.stl.gz')
         with gzip.open(stl_path, 'rb') as stl_file:
