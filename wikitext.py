@@ -3,6 +3,7 @@ import json
 import re
 import sys
 
+
 body_part_lookup = {
     'A': 'anatomical',
     'F': 'full body',
@@ -34,7 +35,8 @@ excited_lookup = {
     'P': 'partially excited',
 }
 
-def load_to_wikitext(file_name):
+
+def load_data(file_name):
     (human_model,
      body_part, pose, arrangement, excited,
      model_code) = \
@@ -51,19 +53,32 @@ def load_to_wikitext(file_name):
 
     assert arrangement == data['arrangement']
     assert body_part == data['body_part']
+    assert excited == data['excited']
+    assert human_model == data['id']
+    assert pose == data['pose']
+
+    data['model_code'] = model_code
+
+    return data
+
+
+def data_to_template_wikitext(data, stl_type='REPLACEME'):
+    arrangement = data['arrangement']
+    body_part = data['body_part']
     body_type = data['body_type']
     comment = data.get('comment')
     created = data['created']
-    assert excited == data['excited']
+    excited = data['excited']
     gender = data['gender']
     gender_comment = data.get('gender_comment')
     given_birth = data['given_birth']
     history = data.get('history', [])  # TODO unused
-    assert human_model == data['id']
+    human_model = data['id']
     # TODO links
     # make_solid_args ignored
+    model_code = data['model_code']
     # other currently always {}
-    assert pose == data['pose']
+    pose = data['pose']
     released = data['released']
     sex = data['sex']
     sex_comment = data.get('sex_comment')
@@ -92,12 +107,56 @@ def load_to_wikitext(file_name):
 |sex={sex}'''
     if sex_comment:
         wikitext += f'\n|sex_comment={sex_comment}'
-    wikitext += '''
-|stl_type=REPLACEME
-}}'''
+    wikitext += f'''
+|stl_type={stl_type}
+}}}}'''
 
     return wikitext
 
+
+def data_to_description(data, stl_type='REPLACEME'):
+    # based on https://github.com/wearebeautiful/wearebeautiful-web/blob/a5ad23c49a790fcd01f1dd47a62f89a43e7ae15d/web/wearebeautiful/db_model.py#L59
+    description = f'a {data["body_part"]} model of '
+    if data['sex'] in ('male', 'female'):
+        description += 'a ' + data['sex']
+    elif data['sex'] == 'intersex':
+        description += 'an intersex pesrson'
+    else:
+        description += 'a person'
+
+    description += f' who is {data["pose"]}'
+    if data['pose'] == 'lying':
+        description += ' down'
+
+    if data['given_birth'] != 'no':
+        description += f' and has given {data["given_birth"]} birth'
+
+    description += f' ({stl_type} version)'
+
+    return description
+
+
+def data_to_page_wikitext(data, stl_type='REPLACEME'):
+    template_wikitext = data_to_template_wikitext(data, stl_type=stl_type)
+    description = data_to_description(data, stl_type=stl_type)
+    model_code = data['model_code']
+    date = data['released']
+    source = f'https://wearebeautiful.info/model/{model_code}'
+
+    return f'''=={{{{int:filedesc}}}}==
+{{{{Information
+|description={{{{en|1={description}}}}}
+|date={date}
+|source={source}
+|author=We Are Beautiful
+}}}}
+
+=={{{{int:license-header}}}}==
+
+{template_wikitext}
+{{{{3dpatent}}}}'''
+
+
 if __name__ == '__main__':
     for file_name in sys.argv[1:]:
-        print(load_to_wikitext(file_name))
+        print(data_to_page_wikitext(load_data(file_name)))
