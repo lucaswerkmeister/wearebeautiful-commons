@@ -1,0 +1,3 @@
+[submodule "wearebeautiful-models"]
+	path = wearebeautiful-models
+	url = https://github.com/wearebeautiful/wearebeautiful-models.git
