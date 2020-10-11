@@ -68,17 +68,33 @@ def upload(session, file_object, file_name, wikitext, comment):
                  text=wikitext)
 
 
+def add_caption(session, file_name, caption):
+    response = session.get(action='query',
+                           titles=f'File:{file_name}',
+                           formatversion=2)
+    page_id = response['query']['pages'][0]['pageid']
+    entity_id = f'M{page_id}'
+    session.post(action='wbsetlabel',
+                 id=entity_id,
+                 language='en',
+                 value=caption,
+                 summary='via {bot_url}',
+                 token=csrf_token(session))
+
+
 def load_and_upload(session, manifest_file):
     data = load_data(manifest_file)
     model_code = data['model_code']
     for stl_type in ('surface', 'solid'):
         file_name = f'We Are Beautiful – {model_code} – {stl_type}.stl'
         wikitext = data_to_page_wikitext(data, stl_type)
+        description = data_to_description(data, stl_type)
         comment = 'Upload via {bot_url}'
         stl_path = manifest_file.replace('-manifest.json',
                                          f'-{stl_type}.stl.gz')
         with gzip.open(stl_path, 'rb') as stl_file:
             upload(session, stl_file, file_name, wikitext, comment)
+        add_caption(session, file_name, description)
 
 
 def main():
