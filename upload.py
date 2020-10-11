@@ -20,52 +20,17 @@ def csrf_token(session):
     return session.csrf_token
 
 
-def read_chunks(file_object, chunk_size):
-    while data := file_object.read(chunk_size):
-        aligned = len(data) == chunk_size
-        yield data
-    if aligned:
-        # yield a final empty chunk to signal end-of-file,
-        # so that we still send an action=upload request where
-        # filesize == offset + len(chunk)
-        yield ''
-
-
 def upload(session, file_object, file_name, wikitext, comment):
-    chunk_size = 1024 * 1024
-    chunks = read_chunks(file_object, chunk_size)
     token = csrf_token(session)
-    offset = 0
-    file_key = None
 
-    for chunk in chunks:
-        params = {
-            'action': 'upload',
-            'stash': '1',
-            'filename': file_name,
-            'offset': offset,
-            'token': token,
-            'upload_file': chunk,
-        }
-        if file_key:
-            params['filekey'] = file_key
-        if len(chunk) < chunk_size:
-            # this is the last chunk
-            params['filesize'] = offset + len(chunk)
-        else:
-            # we don’t know the filesize,
-            # so so just say “we’re not done yet”
-            params['filesize'] = offset + len(chunk) + 1
-        response = session.post(**params)
-        offset = response['upload']['offset']
-        file_key = response['upload']['filekey']
+    response = session.post(action='upload',
+                            filename=file_name,
+                            upload_file=file_object,
+                            token=token,
+                            comment=comment,
+                            text=wikitext)
 
-    session.post(action='upload',
-                 filename=file_name,
-                 filekey=file_key,
-                 token=token,
-                 comment=comment,
-                 text=wikitext)
+    assert response['upload']['result'] == 'Success', response
 
 
 def add_caption(session, file_name, caption):
