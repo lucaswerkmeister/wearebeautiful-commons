@@ -136,9 +136,65 @@ def data_to_description(data, stl_type='REPLACEME'):
     return description
 
 
+def data_to_categories(data):
+    '''Guess some categories for the data.
+
+    This need not be perfect, and editors may adjust the categories
+    later. It’s only meant as a first version, better than nothing.'''
+    categories = []
+
+    body_part = data['body_part']
+    sex = data['sex']
+    if body_part == 'full body':
+        categories.append({
+            'male': 'Human male body',
+            'female': 'Human female body',
+        }.get(sex, 'Human body'))
+    elif body_part == 'breast':
+        categories.append({
+            'male': 'Male human breasts',
+            'female': 'Female human breasts',
+        }.get(sex, 'Human breasts'))
+    elif body_part == 'buttocks':
+        categories.append({
+            'male': 'Male buttocks',
+            'female': 'Female buttocks',
+        }.get(sex, 'Human buttocks'))
+    elif body_part == 'nipple':
+        categories.append({
+            'male': 'Male nipples',
+            'female': 'Female nipples',
+        }.get(sex, 'Human nipples'))
+    elif body_part == 'penis':
+        categories.append({
+            'not excited': 'Flaccid human penis',
+            'excited': 'Erect human penis',
+            'partially excited': 'Semi-erect human penis',
+        }[data['excited']])
+    elif body_part == 'torso':
+        categories.append({
+            'male': 'Male human torsos',
+            'female': 'Female human torsos',
+        }.get(sex, 'Human torsos'))
+    elif body_part == 'vulva':
+        categories.append('Human vulvas')
+    elif body_part == 'hand':
+        categories.append({
+            'male': 'Male hands',
+            'female': 'Female hands',
+        }.get(sex, 'Human hands'))
+
+    categories.append('STL body parts')
+
+    return categories
+
+
 def data_to_page_wikitext(data, stl_type='REPLACEME'):
     template_wikitext = data_to_template_wikitext(data, stl_type=stl_type)
     description = data_to_description(data, stl_type=stl_type)
+    categories = data_to_categories(data)
+    categories_wikitext = '\n'.join(f'[[Category:{category}]]'
+                                    for category in categories)
     model_code = data['model_code']
     date = data['released']
     source = f'https://wearebeautiful.info/model/{model_code}'
@@ -154,7 +210,9 @@ def data_to_page_wikitext(data, stl_type='REPLACEME'):
 =={{{{int:license-header}}}}==
 
 {template_wikitext}
-{{{{3dpatent}}}}'''
+{{{{3dpatent}}}}
+
+{categories_wikitext}'''
 
 
 if __name__ == '__main__':
