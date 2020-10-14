@@ -6,33 +6,33 @@ import sys
 
 body_part_lookup = {
     'A': 'anatomical',
-    'F': 'full body',
-    'L': 'lower body',
-    'U': 'upper body',
     'B': 'breast',
-    'O': 'buttocks',
+    'F': 'full body',
+    'H': 'hand',
+    'L': 'lower body',
     'N': 'nipple',
+    'O': 'buttocks',
     'P': 'penis',
     'T': 'torso',
+    'U': 'upper body',
     'V': 'vulva',
-    'H': 'hand',
 }
 pose_lookup = {
+    'L': 'lying',
     'S': 'standing',
     'T': 'sitting',
-    'L': 'lying',
     'U': 'lying, legs pulled up',
 }
 arrangement_lookup = {
-    'S': 'spread',
-    'R': 'retracted',
     'A': 'arranged',
     'N': 'natural',
+    'R': 'retracted',
+    'S': 'spread',
 }
 excited_lookup = {
+    'P': 'partially excited',
     'N': 'not excited',
     'X': 'excited',
-    'P': 'partially excited',
 }
 
 
