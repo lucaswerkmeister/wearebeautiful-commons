@@ -15,7 +15,7 @@ body_part_lookup = {
     'P': 'penis',
     'T': 'torso',
     'V': 'vulva',
-    'H': 'hand',  # not documented on https://wearebeautiful.info/docs/model-codes
+    'H': 'hand',
 }
 pose_lookup = {
     'S': 'standing',
