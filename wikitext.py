@@ -120,7 +120,7 @@ def data_to_description(data, stl_type='REPLACEME'):
     if data['sex'] in ('male', 'female'):
         description += 'a ' + data['sex']
     elif data['sex'] == 'intersex':
-        description += 'an intersex pesrson'
+        description += 'an intersex person'
     else:
         description += 'a person'
 
